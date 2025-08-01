@@ -82,7 +82,7 @@ The architecture is designed for **scalability**, **observability**, and **relia
 **Verification**:
 - Confirmed pods and services with `kubectl get all --all-namespaces`.
 
-![Kubernetes Pods and Services](./images/kubernetes-Resources.png)
+![Kubernetes Pods and Services](./images/Kubernetes-Resources.png)
 
 ![Node-Exporter](./images/Node-Exporter.png)
 
