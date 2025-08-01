@@ -1,0 +1,35 @@
+groups:
+- name: mern-app-alerts
+  rules:
+  - alert: HighCPUUsage
+    expr: rate(node_cpu_seconds_total{instance="k8s-master", mode="user"}[5m]) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage on {{ $labels.instance }} has been above 80% for 5 minutes."
+  - alert: PodNotRunning
+    expr: kube_pod_status_phase{namespace="mern-app", phase!="Running"} > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Pod {{ $labels.pod }} in {{ $labels.namespace }} is not running"
+      description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is in phase {{ $labels.phase }} for 5 minutes."
+  - alert: EndpointDown
+    expr: probe_success{job="blackbox", instance=~".*192.168.119.58.*"} == 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Endpoint {{ $labels.instance }} is down"
+      description: "{{ $labels.instance }} has been down for more than 5 minutes."
+  - alert: HighBackendErrorRate
+    expr: rate(http_errors_total{instance="k8s-master", job="mern-backend"}[5m]) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High error rate on backend {{ $labels.route }}"
+      description: "Backend route {{ $labels.route }} has an error rate above 10% for 5 minutes."

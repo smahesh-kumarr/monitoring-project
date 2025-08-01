@@ -1,0 +1,50 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ['192.168.119.170:9093']
+
+rule_files:
+  - "alert-rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['192.168.119.58:31900']
+        labels:
+          instance: k8s-master
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['192.168.119.58:31800']
+        labels:
+          instance: k8s-master
+  - job_name: 'mern-backend'
+    static_configs:
+      - targets: ['192.168.119.58:30002']
+        labels:
+          instance: k8s-master
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://192.168.119.58:30001
+        - http://192.168.119.58:30002/api/pipelines/stats
+        - http://192.168.119.58:30002/api/pipelines/activities/recent
+        - http://192.168.119.58:30002/api/credentials
+        labels:
+          instance: k8s-master
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.119.170:9115
